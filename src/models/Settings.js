@@ -14,11 +14,22 @@ const backgroundSchema = new Schema(
   { _id: false }
 );
 
-/** Admin-app-only settings — the two customizable background images. */
+const adminAvatarSchema = new Schema(
+  {
+    url: { type: String, default: null },
+    publicId: { type: String, default: null },
+  },
+  { _id: false }
+);
+
+/** Admin-app-only settings — the two customizable background images, and the admin's own photo. */
 const settingsSchema = new Schema(
   {
     adminLoginBackground: { type: backgroundSchema, default: () => ({}) },
     adminHomeBackground: { type: backgroundSchema, default: () => ({}) },
+    // Shown in the admin dashboard's top bar and on the sign-in screen's
+    // logo mark once uploaded — falls back to a plain icon until then.
+    adminAvatar: { type: adminAvatarSchema, default: () => ({}) },
   },
   { timestamps: true }
 );

@@ -71,3 +71,36 @@ export async function deleteBackground(req, res) {
 
   res.json({ success: true, data: doc });
 }
+
+/** Uploads the admin's own photo — shown in the topbar and the login mark. */
+export async function updateAdminAvatar(req, res) {
+  if (!req.file) throw new ApiError(400, "No image file uploaded (field name: image)");
+
+  let doc = await Settings.findOne();
+  if (!doc) doc = new Settings();
+
+  const previousPublicId = doc.adminAvatar?.publicId;
+  const { url, publicId } = await uploadBufferToCloudinary(req.file.buffer, {
+    folder: "subhojit-portfolio/admin-avatar",
+  });
+
+  doc.adminAvatar = { url, publicId };
+  await doc.save();
+
+  await deleteFromCloudinary(previousPublicId);
+  res.json({ success: true, data: doc });
+}
+
+/** Removes the admin's photo from Cloudinary and reverts to the default icon mark. */
+export async function deleteAdminAvatar(req, res) {
+  const doc = await Settings.findOne();
+  if (!doc?.adminAvatar?.publicId) {
+    throw new ApiError(400, "No uploaded photo to delete");
+  }
+
+  await deleteFromCloudinary(doc.adminAvatar.publicId);
+  doc.adminAvatar = { url: null, publicId: null };
+  await doc.save();
+
+  res.json({ success: true, data: doc });
+}
