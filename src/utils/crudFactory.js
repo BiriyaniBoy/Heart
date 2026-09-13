@@ -1,4 +1,5 @@
 import { ApiError } from "./ApiError.js";
+import { sanitizeBody } from "./sanitizeBody.js";
 
 /**
  * Standard REST CRUD for a top-level collection (e.g. Company, Experience,
@@ -20,12 +21,12 @@ export function createCrudController(Model, { sortField = "order" } = {}) {
     },
 
     create: async (req, res) => {
-      const doc = await Model.create(req.body);
+      const doc = await Model.create(sanitizeBody(req.body));
       res.status(201).json({ success: true, data: doc });
     },
 
     update: async (req, res) => {
-      const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+      const doc = await Model.findByIdAndUpdate(req.params.id, sanitizeBody(req.body), {
         returnDocument: "after",
         runValidators: true,
       });

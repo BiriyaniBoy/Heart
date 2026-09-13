@@ -1,3 +1,5 @@
+import { sanitizeBody } from "./sanitizeBody.js";
+
 /**
  * Fetches the one document for a singleton section, creating it with
  * schema defaults on first read if it doesn't exist yet. Exported on its
@@ -28,7 +30,7 @@ export function createSingletonController(Model, defaults = {}) {
     update: async (req, res) => {
       let doc = await Model.findOne();
       if (!doc) doc = new Model(defaults);
-      doc.set(req.body);
+      doc.set(sanitizeBody(req.body));
       await doc.save();
       res.json({ success: true, data: doc });
     },
